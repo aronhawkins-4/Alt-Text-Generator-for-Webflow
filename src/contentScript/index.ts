@@ -41,65 +41,33 @@ const mutObserver = new MutationObserver((mutationList: MutationRecord[]) => {
         generateButtonText.textContent = 'Generating...'
         if (href && textArea) {
           try {
-            if (href.slice(-3) === 'svg') {
-              convertSvg(href).then((res) => {
-                if (res) {
-                  generate(res)
+            axios
+              .post('https://alt-text-generator-api.onrender.com/generate', {
+                url: href,
+              })
+              .then((res) => {
+                const generatedText = res.data
+                if (textArea) {
+                  if (generatedText) {
+                    textArea.value = generatedText
+                    textArea.dispatchEvent(
+                      new InputEvent('input', {
+                        bubbles: true,
+                        cancelable: true,
+                      }),
+                    )
+                    textArea.selectionStart = textArea.selectionEnd = generatedText.length
+                    textArea.focus()
+                    generateButtonText.textContent = 'Done!'
+                    setTimeout(() => {
+                      generateButtonText.textContent = 'Generate Alt Text'
+                    }, 1000)
+                  }
                 }
               })
-              return
-            } else {
-              generate(href)
-            }
-
-            function generate(href: string) {
-              axios
-                .get(href, { responseType: 'arraybuffer' })
-                .then((axiosRes) => {
-                  const uintArr = new Uint8Array(axiosRes.data)
-                  const regularArr = Array.from(uintArr)
-                  const bopsArray = bops.from(regularArr, 'utf-8')
-                  return bopsArray
-                })
-                .then((array) => {
-                  fetch(
-                    'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base',
-                    {
-                      headers: {
-                        Authorization: 'Bearer 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',
-                      },
-                      method: 'POST',
-                      body: array,
-                    },
-                  )
-                    .then((res) => res.json())
-                    .then((json) => {
-                      if (json && json.at(0).generated_text) return json.at(0).generated_text
-                      throw Error('Invalid response format')
-                    })
-                    .then((res) => {
-                      const generatedText = res
-                      if (textArea) {
-                        if (generatedText) {
-                          textArea.value = generatedText
-                          textArea.dispatchEvent(
-                            new InputEvent('input', {
-                              bubbles: true,
-                              cancelable: true,
-                            }),
-                          )
-                          textArea.selectionStart = textArea.selectionEnd = generatedText.length
-                          textArea.focus()
-                          generateButtonText.textContent = 'Done!'
-                          setTimeout(() => {
-                            generateButtonText.textContent = 'Generate Alt Text'
-                          }, 1000)
-                        }
-                      }
-                    })
-                    .catch((error: any) => error.message)
-                })
-            }
+              .catch((error: any) => {
+                throw new Error(error.message)
+              })
           } catch (error: any) {
             generateButtonText.textContent = 'Generate Alt Text'
             alert('something went wrong while generating alt text')
