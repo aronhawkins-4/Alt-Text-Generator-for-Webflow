@@ -1,26 +1,6 @@
 import axios from 'axios'
-//@ts-expect-error
-import * as bops from 'bops'
-import ConvertApi from 'convertapi-js'
 
 console.info('Alt Text Generator is ready')
-
-async function convertSvg(href: string) {
-  const convertApi = ConvertApi.auth('JtbBiHM3zvhTYN9s')
-
-  const params = convertApi.createParams()
-  params.add('file', new URL(href))
-  const result = (await convertApi.convert('svg', 'png', params)) as unknown as
-    | ConvertedPNG
-    | undefined
-  if (result) {
-    const url = result?.dto?.Files?.at(0)?.Url
-    if (url) {
-      return url
-    }
-    return undefined
-  }
-}
 
 const mutObserver = new MutationObserver((mutationList: MutationRecord[]) => {
   for (const mutation of mutationList) {
@@ -82,16 +62,3 @@ mutObserver.observe(document.getElementById('designer-app-react-mount')!, {
   subtree: true,
   attributes: true,
 })
-
-type ConvertedPNG = {
-  dto: {
-    ConversionCost: number
-    Files: {
-      FileExt: string
-      FileId: string
-      FileName: string
-      FileSize: number
-      Url: string
-    }[]
-  }
-}
