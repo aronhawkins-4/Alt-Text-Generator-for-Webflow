@@ -21,7 +21,7 @@ const mutObserver = new MutationObserver((mutationList: MutationRecord[]) => {
         generateButtonText.textContent = 'Generating...'
         if (href && textArea) {
           axios
-            .post('http://localhost:3000/generate', {
+            .post('https://alt-text-generator-api.onrender.com/generate', {
               url: href,
             })
             .then((res) => {
