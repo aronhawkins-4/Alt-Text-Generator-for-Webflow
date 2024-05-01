@@ -20,38 +20,37 @@ const mutObserver = new MutationObserver((mutationList: MutationRecord[]) => {
       generateButton.addEventListener('click', () => {
         generateButtonText.textContent = 'Generating...'
         if (href && textArea) {
-          try {
-            axios
-              .post('https://alt-text-generator-api.onrender.com/generate', {
-                url: href,
-              })
-              .then((res) => {
-                const generatedText = res.data
-                if (textArea) {
-                  if (generatedText) {
-                    textArea.value = generatedText
-                    textArea.dispatchEvent(
-                      new InputEvent('input', {
-                        bubbles: true,
-                        cancelable: true,
-                      }),
-                    )
-                    textArea.selectionStart = textArea.selectionEnd = generatedText.length
-                    textArea.focus()
-                    generateButtonText.textContent = 'Done!'
-                    setTimeout(() => {
-                      generateButtonText.textContent = 'Generate Alt Text'
-                    }, 1000)
-                  }
+          axios
+            .post('http://localhost:3000/generate', {
+              url: href,
+            })
+            .then((res) => {
+              const generatedText = res.data
+              if (textArea) {
+                if (generatedText) {
+                  textArea.value = generatedText
+                  textArea.dispatchEvent(
+                    new InputEvent('input', {
+                      bubbles: true,
+                      cancelable: true,
+                    }),
+                  )
+                  textArea.selectionStart = textArea.selectionEnd = generatedText.length
+                  textArea.focus()
+                  generateButtonText.textContent = 'Done!'
+                  setTimeout(() => {
+                    generateButtonText.textContent = 'Generate Alt Text'
+                  }, 1000)
                 }
-              })
-              .catch((error: any) => {
-                throw new Error(error.message)
-              })
-          } catch (error: any) {
-            generateButtonText.textContent = 'Generate Alt Text'
-            alert('something went wrong while generating alt text')
-          }
+              }
+            })
+            .catch((error: any) => {
+              generateButtonText.textContent = 'Generate Alt Text'
+              alert(
+                'Error while generating alt text. Image may be too large. Try reducing image size or compressing the image.',
+              )
+              return
+            })
         }
       })
     }

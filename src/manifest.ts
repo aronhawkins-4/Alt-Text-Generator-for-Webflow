@@ -24,7 +24,7 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      matches: ['http://*/*', 'https://*/*'],
+      matches: ['http://*.design.webflow.com/*', 'https://*.design.webflow.com/*'],
       js: ['src/contentScript/index.ts'],
     },
   ],
